@@ -178,7 +178,27 @@ export function Layout({ children }: LayoutProps) {
 
               <div className="space-y-4 flex-1 overflow-y-auto">
                 {navItems.map((item) => {
+                  const isCoach = item.path === '/coach';
                   const isActive = location.pathname.startsWith(item.path);
+                  const onCoachPage = location.pathname === '/coach';
+                  
+                  if (isCoach) {
+                    return (
+                      <button
+                        key={item.path}
+                        disabled={!onCoachPage}
+                        onClick={() => !onCoachPage && setIsMobileMenuOpen(false)}
+                        className={cn(
+                          "flex items-center gap-4 p-4 rounded-2xl transition-all",
+                          onCoachPage ? "bg-primary text-surface font-black" : "text-on-surface-variant/40 cursor-not-allowed"
+                        )}
+                      >
+                        <item.icon className="w-5 h-5" />
+                        <span className="font-bold">{item.label}</span>
+                      </button>
+                    );
+                  }
+                  
                   return (
                     <NavLink
                       key={item.path}

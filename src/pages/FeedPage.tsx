@@ -11,10 +11,11 @@ import {
   Check,
   Search,
   Loader2,
-  CheckCircle2
+  CheckCircle2,
+  Settings
 } from 'lucide-react';
 import { useState, useRef, useEffect } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useLocation } from 'react-router-dom';
 import { AnimatePresence, motion } from 'motion/react';
 import { cn } from '../lib/utils';
 import { useAppStore } from '../store';
@@ -25,6 +26,7 @@ const OTHER_FILTERS = ['Salute & Benessere', 'Automotive', 'Real Estate', 'Educa
 
 export default function FeedPage() {
   const navigate = useNavigate();
+  const location = useLocation();
   const [activeFilter, setActiveFilter] = useState('Tutti i Settori');
   const [showMoreFilters, setShowMoreFilters] = useState(false);
   const [showSearchPopup, setShowSearchPopup] = useState(false);
@@ -97,43 +99,30 @@ export default function FeedPage() {
           <motion.button 
             whileHover={{ scale: 1.02 }}
             whileTap={{ scale: 0.98 }}
-            onClick={handleStartSearch}
-            disabled={searchStarted}
-            className={cn(
-              "px-12 py-5 rounded-full bg-gradient-to-r from-primary to-primary-dim text-surface font-black text-xl shadow-xl shadow-primary/20 flex items-center gap-3",
-              searchStarted && "opacity-50 cursor-not-allowed"
-            )}
+            onClick={() => navigate('/config')}
+            className="px-12 py-5 rounded-full bg-gradient-to-r from-primary to-primary-dim text-surface font-black text-xl shadow-xl shadow-primary/20 flex items-center gap-3"
           >
-            {searchStarted ? (
-              <>
-                <Loader2 className="w-6 h-6 animate-spin" />
-                Ricerca in corso...
-              </>
-            ) : (
-              <>
-                <Search className="w-6 h-6" />
-                Avvia Ricerca
-              </>
-            )}
+            <Settings className="w-6 h-6" />
+            Configura Ricerca
           </motion.button>
         </div>
 
-        {/* Search Popup */}
+        {/* Search Popup - Mobile */}
         <AnimatePresence>
           {showSearchPopup && (
             <motion.div 
               initial={{ opacity: 0, y: 50, scale: 0.9 }}
               animate={{ opacity: 1, y: 0, scale: 1 }}
               exit={{ opacity: 0, y: 50, scale: 0.9 }}
-              className="fixed bottom-32 left-1/2 -translate-x-1/2 z-[100] glass-card px-8 py-5 border-primary/30 shadow-2xl flex items-center gap-4"
+              className="fixed bottom-36 left-4 right-4 md:left-auto md:right-auto md:bottom-32 md:left-1/2 md:-translate-x-1/2 z-[100] glass-card px-6 py-5 border-2 border-emerald-500/50 shadow-[0_0_40px_rgba(16,185,129,0.4)] flex items-center gap-4"
             >
-              <div className="w-12 h-12 rounded-2xl bg-emerald-500/20 flex items-center justify-center text-emerald-500 border border-emerald-500/30">
-                <CheckCircle2 className="w-6 h-6" />
+              <div className="w-14 h-14 rounded-2xl bg-emerald-500/20 flex items-center justify-center text-emerald-500 border-2 border-emerald-500/50 shrink-0">
+                <CheckCircle2 className="w-7 h-7" />
               </div>
               <div>
-                <p className="text-lg font-black text-white">Ricerca Completata!</p>
+                <p className="text-xl font-black text-white">Ricerca Completata!</p>
                 <p className="text-sm text-on-surface-variant font-medium">
-                  Trovate <span className="text-primary font-black">{searchResultsCount}</span> attività nella tua zona.
+                  Trovate <span className="text-primary font-black text-lg">{searchResultsCount}</span> attività nella tua zona.
                 </p>
               </div>
             </motion.div>

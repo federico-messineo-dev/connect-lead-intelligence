@@ -125,7 +125,7 @@ export default function LeadsPage() {
                   initial={{ opacity: 0, y: 10, scale: 0.95 }}
                   animate={{ opacity: 1, y: 0, scale: 1 }}
                   exit={{ opacity: 0, y: 10, scale: 0.95 }}
-                  className="absolute top-full mt-4 right-0 w-64 glass-card border border-white/10 shadow-2xl z-50 p-2"
+                  className="absolute top-full mt-4 left-4 right-4 md:left-auto md:right-0 md:w-64 w-auto glass-card border border-white/10 shadow-2xl z-50 p-2"
                 >
                   <div className="p-4 border-b border-white/5 mb-2">
                     <h4 className="text-[10px] font-black uppercase tracking-widest text-on-surface-variant">Filtra per Settore</h4>

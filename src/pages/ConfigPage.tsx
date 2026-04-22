@@ -7,15 +7,36 @@ import {
   X, 
   PlusCircle, 
   Key,
-  Database
+  Database,
+  Loader2,
+  CheckCircle2
 } from 'lucide-react';
 import { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { cn } from '../lib/utils';
+import { useAppStore } from '../store';
+import { ALL_LEADS } from '../constants';
 
 export default function ConfigPage() {
+  const navigate = useNavigate();
   const [selectedCategories, setSelectedCategories] = useState(['Ristoranti', 'Hotel & Ospitalità']);
+  const [isSearching, setIsSearching] = useState(false);
+  const { setHasSearched, setSearchResultsCount, setIsSearching: setGlobalIsSearching } = useAppStore();
 
   const categories = ['Servizi B2B', 'Retail & Negozi', 'Professionisti', 'Sanità & Benessere', 'Logistica'];
+
+  const handleStartSearch = () => {
+    setIsSearching(true);
+    setGlobalIsSearching(true);
+    
+    setTimeout(() => {
+      setIsSearching(false);
+      setGlobalIsSearching(false);
+      setHasSearched(true);
+      setSearchResultsCount(ALL_LEADS.length);
+      navigate('/feed');
+    }, 7000);
+  };
 
   return (
     <div className="space-y-12 pb-20">
@@ -177,12 +198,26 @@ export default function ConfigPage() {
       {/* Floating Bottom Action */}
       <div className="fixed bottom-24 md:bottom-10 inset-x-6 md:left-auto md:right-10 flex flex-col items-center md:items-end gap-4 z-30">
         <motion.button 
-          whileHover={{ scale: 1.05, y: -5 }}
-          whileTap={{ scale: 0.95 }}
-          className="w-full md:w-auto bg-gradient-to-r from-primary to-primary-dim text-surface font-black text-lg px-8 md:px-12 py-4 md:py-5 rounded-full shadow-[0_20px_50px_rgba(0,112,235,0.3)] flex items-center justify-center gap-3 active:shadow-inner"
+          whileHover={{ scale: isSearching ? 1 : 1.05, y: isSearching ? 0 : -5 }}
+          whileTap={{ scale: isSearching ? 1 : 0.95 }}
+          onClick={handleStartSearch}
+          disabled={isSearching}
+          className={cn(
+            "w-full md:w-auto text-surface font-black text-lg px-8 md:px-12 py-4 md:py-5 rounded-full shadow-[0_20px_50px_rgba(0,112,235,0.3)] flex items-center justify-center gap-3",
+            isSearching ? "bg-white/10 cursor-not-allowed" : "bg-gradient-to-r from-primary to-primary-dim active:shadow-inner"
+          )}
         >
-          <Rocket className="w-6 h-6 fill-surface" />
-          Avvia Ricerca
+          {isSearching ? (
+            <>
+              <Loader2 className="w-6 h-6 animate-spin" />
+              Ricerca in corso...
+            </>
+          ) : (
+            <>
+              <Rocket className="w-6 h-6 fill-surface" />
+              Avvia Ricerca
+            </>
+          )}
         </motion.button>
       </div>
 
