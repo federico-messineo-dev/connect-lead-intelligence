@@ -354,10 +354,10 @@ export default function FeedPage() {
             </p>
           </div>
           <button 
-            onClick={() => setActiveFilter('Tutti i Settori')}
+            onClick={() => { setActiveFilter('Tutti i Settori'); navigate('/config'); }}
             className="px-8 py-3 rounded-full bg-white/5 text-white font-bold hover:bg-white/10 transition-all"
           >
-            Reset Filtri
+            Nuova Ricerca
           </button>
         </motion.div>
       )}

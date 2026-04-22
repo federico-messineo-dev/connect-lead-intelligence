@@ -25,7 +25,7 @@ export default function ConfigPage() {
   const [isSearching, setIsSearching] = useState(false);
   const [showError, setShowError] = useState(false);
   const [showCitySuggestions, setShowCitySuggestions] = useState(false);
-  const { setSearchPerformedThisSession, setSearchResultsCount, setIsSearching: setGlobalIsSearching, setShowSearchCompletePopup, setSelectedSearchCategories, setSelectedSearchLocation } = useAppStore();
+  const { setSearchPerformedThisSession, setSearchResultsCount, setIsSearching: setGlobalIsSearching, setShowSearchCompletePopup, setSelectedSearchCategories, setSelectedSearchLocation, setTodayStats, todaySearchesCount, todayLeadsCount } = useAppStore();
 
   const categories = ['Servizi B2B', 'Retail & Negozi', 'Professionisti', 'Sanità & Benessere', 'Logistica'];
   
@@ -73,6 +73,7 @@ export default function ConfigPage() {
         return categoryMatch && locationMatch;
       });
       setSearchResultsCount(filtered.length);
+      setTodayStats(todaySearchesCount + 1, todayLeadsCount + filtered.length);
       setSearchPerformedThisSession(true);
       setShowSearchCompletePopup(true);
       navigate('/feed');
@@ -142,7 +143,7 @@ export default function ConfigPage() {
                     initial={{ opacity: 0, y: -10 }}
                     animate={{ opacity: 1, y: 0 }}
                     exit={{ opacity: 0, y: -10 }}
-                    className="absolute top-full mt-2 left-0 right-0 glass-card border border-white/10 shadow-2xl z-50 py-2"
+                    className="absolute top-full mt-2 left-0 right-0 md:left-0 glass-card border border-white/10 shadow-2xl z-50 py-2 max-h-48 overflow-y-auto"
                   >
                     {citySuggestions.map((city) => (
                       <button
@@ -256,12 +257,12 @@ export default function ConfigPage() {
                 <Database className="w-5 h-5 text-primary" />
                 <span className="text-sm font-bold text-on-surface-variant">Ricerche Attive</span>
               </div>
-              <span className="bg-primary/20 text-primary border border-primary/20 px-3 py-1 rounded-full text-xs font-black">3 / 5</span>
+              <span className="bg-primary/20 text-primary border border-primary/20 px-3 py-1 rounded-full text-xs font-black">{todaySearchesCount} / 5</span>
             </div>
             <div className="h-px bg-white/5" />
             <div className="space-y-1">
               <span className="text-sm font-medium text-on-surface-variant">Lead Trovati (Oggi)</span>
-              <p className="text-4xl font-black text-white">1,248</p>
+              <p className="text-4xl font-black text-white">{todayLeadsCount}</p>
             </div>
           </motion.div>
         </div>
