@@ -9,23 +9,33 @@ import {
   Key,
   Database,
   Loader2,
-  CheckCircle2
+  AlertCircle
 } from 'lucide-react';
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { AnimatePresence } from 'motion/react';
 import { cn } from '../lib/utils';
 import { useAppStore } from '../store';
 import { ALL_LEADS } from '../constants';
 
 export default function ConfigPage() {
   const navigate = useNavigate();
-  const [selectedCategories, setSelectedCategories] = useState(['Ristoranti', 'Hotel & Ospitalità']);
+  const [location, setLocation] = useState('');
+  const [selectedCategories, setSelectedCategories] = useState<string[]>([]);
   const [isSearching, setIsSearching] = useState(false);
+  const [showError, setShowError] = useState(false);
   const { setSearchPerformedThisSession, setSearchResultsCount, setIsSearching: setGlobalIsSearching } = useAppStore();
 
   const categories = ['Servizi B2B', 'Retail & Negozi', 'Professionisti', 'Sanità & Benessere', 'Logistica'];
 
   const handleStartSearch = () => {
+    setShowError(false);
+    
+    if (!location.trim() || selectedCategories.length === 0) {
+      setShowError(true);
+      return;
+    }
+    
     setIsSearching(true);
     setGlobalIsSearching(true);
     
@@ -37,6 +47,8 @@ export default function ConfigPage() {
       navigate('/feed');
     }, 7000);
   };
+
+  const isValid = location.trim() && selectedCategories.length > 0;
 
   return (
     <div className="space-y-12 pb-20">
@@ -84,7 +96,12 @@ export default function ConfigPage() {
               <input 
                 type="text" 
                 placeholder="Es. Milano, Lombardia, Italia..."
-                className="w-full bg-surface-container-lowest/30 border border-white/5 rounded-full py-5 pl-14 pr-8 text-on-surface placeholder:text-on-surface-variant/30 focus:ring-2 focus:ring-primary/20 focus:bg-surface-container-lowest/50 transition-all outline-none"
+                value={location}
+                onChange={(e) => { setLocation(e.target.value); setShowError(false); }}
+                className={cn(
+                  "w-full bg-surface-container-lowest/30 border rounded-full py-5 pl-14 pr-8 text-on-surface placeholder:text-on-surface-variant/30 focus:ring-2 focus:ring-primary/20 focus:bg-surface-container-lowest/50 transition-all outline-none",
+                  showError && !location.trim() ? "border-error focus:ring-error/20" : "border-white/5"
+                )}
               />
             </div>
           </motion.div>
@@ -94,7 +111,10 @@ export default function ConfigPage() {
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 0.1 }}
-            className="glass-card p-6 md:p-8 group overflow-hidden"
+            className={cn(
+              "glass-card p-6 md:p-8 group overflow-hidden",
+              showError && selectedCategories.length === 0 && "border-error"
+            )}
           >
             <div className="flex gap-4 mb-6 md:mb-8">
               <div className="w-10 h-10 md:w-12 md:h-12 rounded-2xl bg-secondary/10 flex items-center justify-center text-secondary border border-secondary/20 shrink-0">
@@ -115,7 +135,7 @@ export default function ConfigPage() {
                   className="inline-flex items-center gap-2 px-5 py-2.5 bg-secondary/10 text-secondary border border-secondary/20 rounded-full text-sm font-bold backdrop-blur-md"
                 >
                   {cat}
-                  <button onClick={() => setSelectedCategories(s => s.filter(c => c !== cat))} className="hover:text-white">
+                  <button onClick={() => { setSelectedCategories(s => s.filter(c => c !== cat)); setShowError(false); }} className="hover:text-white">
                     <X className="w-4 h-4" />
                   </button>
                 </motion.span>
@@ -127,7 +147,7 @@ export default function ConfigPage() {
               {categories.map(cat => (
                 <button 
                   key={cat}
-                  onClick={() => !selectedCategories.includes(cat) && setSelectedCategories([...selectedCategories, cat])}
+                  onClick={() => { if (!selectedCategories.includes(cat)) { setSelectedCategories([...selectedCategories, cat]); setShowError(false); }}}
                   className="flex items-center justify-between p-4 bg-white/5 rounded-full border border-white/5 text-sm font-bold text-on-surface-variant hover:bg-white/10 hover:text-on-surface transition-all group/btn"
                 >
                   {cat}
@@ -196,6 +216,22 @@ export default function ConfigPage() {
       </div>
 
       {/* Floating Bottom Action */}
+      <AnimatePresence>
+        {showError && (
+          <motion.div 
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0, y: 20 }}
+            className="fixed bottom-36 md:bottom-28 left-4 right-4 md:left-auto md:right-auto md:left-10 flex justify-center z-40"
+          >
+            <div className="glass-card bg-error/10 border-error/30 px-6 py-4 flex items-center gap-3">
+              <AlertCircle className="w-5 h-5 text-error shrink-0" />
+              <p className="text-sm font-bold text-error">Compila località e seleziona almeno una categoria</p>
+            </div>
+          </motion.div>
+        )}
+      </AnimatePresence>
+      
       <div className="fixed bottom-24 md:bottom-10 inset-x-6 md:left-auto md:right-10 flex flex-col items-center md:items-end gap-4 z-30">
         <motion.button 
           whileHover={{ scale: isSearching ? 1 : 1.05, y: isSearching ? 0 : -5 }}
