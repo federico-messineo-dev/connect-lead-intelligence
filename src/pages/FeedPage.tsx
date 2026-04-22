@@ -30,7 +30,7 @@ export default function FeedPage() {
   const toggleSaveLead = useAppStore(state => state.toggleSaveLead);
   const savedLeads = useAppStore(state => state.savedLeads);
   const setSelectedLead = useAppStore(state => state.setSelectedLead);
-  const { hasSearched, searchResultsCount, searchPerformedThisSession, showSearchCompletePopup, setShowSearchCompletePopup, selectedSearchCategories } = useAppStore();
+  const { hasSearched, searchResultsCount, searchPerformedThisSession, showSearchCompletePopup, setShowSearchCompletePopup, selectedSearchCategories, selectedSearchLocation } = useAppStore();
 
   const isSaved = (leadId: number) => savedLeads.some(l => l.id === leadId);
 
@@ -70,8 +70,13 @@ export default function FeedPage() {
   
   const validCategories = selectedSearchCategories.map(c => getMappedCategory(c));
   
-  const filteredLeads = searchPerformedThisSession && validCategories.length > 0
-    ? ALL_LEADS.filter(l => validCategories.includes(l.category))
+  const filteredLeads = searchPerformedThisSession
+    ? ALL_LEADS.filter(l => {
+        const categoryMatch = validCategories.length === 0 || validCategories.includes(l.category);
+        const locationMatch = !selectedSearchLocation || 
+          l.location.toLowerCase().includes(selectedSearchLocation.toLowerCase());
+        return categoryMatch && locationMatch;
+      })
     : activeFilter === 'Tutti i Settori' 
       ? ALL_LEADS 
       : ALL_LEADS.filter(l => l.category === activeFilter);

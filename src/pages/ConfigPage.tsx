@@ -1,4 +1,4 @@
-import { motion } from 'motion/react';
+import { motion, AnimatePresence } from 'motion/react';
 import { 
   Rocket, 
   MapPin, 
@@ -24,9 +24,22 @@ export default function ConfigPage() {
   const [selectedCategories, setSelectedCategories] = useState<string[]>([]);
   const [isSearching, setIsSearching] = useState(false);
   const [showError, setShowError] = useState(false);
-  const { setSearchPerformedThisSession, setSearchResultsCount, setIsSearching: setGlobalIsSearching, setShowSearchCompletePopup, setSelectedSearchCategories } = useAppStore();
+  const [showCitySuggestions, setShowCitySuggestions] = useState(false);
+  const { setSearchPerformedThisSession, setSearchResultsCount, setIsSearching: setGlobalIsSearching, setShowSearchCompletePopup, setSelectedSearchCategories, setSelectedSearchLocation } = useAppStore();
 
   const categories = ['Servizi B2B', 'Retail & Negozi', 'Professionisti', 'Sanità & Benessere', 'Logistica'];
+  
+  const italianCities = [
+    'Milano', 'Roma', 'Napoli', 'Torino', 'Palermo', 'Genova', 'Bologna', 'Firenze', 
+    'Bari', 'Catania', 'Venezia', 'Verona', 'Messina', 'Padova', 'Trieste', 'Brescia',
+    'Prato', 'Reggio Calabria', 'Modena', 'Parma', 'Reggio Emilia', 'Perugia', 'Ravenna', 'Lecce',
+    'Cagliari', 'Foggia', 'Rimini', 'Syracuse', 'Grosseto', 'Trento', 'Cesena', 'Imola',
+    'Milano Centro', 'Milano Navigli', 'Roma Centro', 'Napoli Centro', 'Torino Centro'
+  ];
+  
+  const citySuggestions = location.trim().length >= 2 
+    ? italianCities.filter(city => city.toLowerCase().includes(location.toLowerCase())).slice(0, 6)
+    : [];
 
   const handleStartSearch = () => {
     setShowError(false);
@@ -43,8 +56,24 @@ export default function ConfigPage() {
       setIsSearching(false);
       setGlobalIsSearching(false);
       setSelectedSearchCategories(selectedCategories);
+      setSelectedSearchLocation(location.trim());
+      const filtered = ALL_LEADS.filter(l => {
+        const categoryMatch = selectedCategories.some(cat => {
+          const map: Record<string, string> = {
+            'Servizi B2B': 'Servizi IT',
+            'Retail & Negozi': 'Retail',
+            'Professionisti': 'Servizi IT',
+            'Sanità & Benessere': 'Salute & Benessere',
+            'Logistica': 'Servizi IT',
+          };
+          return l.category === (map[cat] || cat);
+        });
+        const locationMatch = location.trim() === '' || 
+          l.location.toLowerCase().includes(location.trim().toLowerCase());
+        return categoryMatch && locationMatch;
+      });
+      setSearchResultsCount(filtered.length);
       setSearchPerformedThisSession(true);
-      setSearchResultsCount(ALL_LEADS.length);
       setShowSearchCompletePopup(true);
       navigate('/feed');
     }, 7000);
@@ -97,14 +126,36 @@ export default function ConfigPage() {
               <Search className="absolute left-5 top-1/2 -translate-y-1/2 w-5 h-5 text-on-surface-variant group-focus-within:text-primary transition-colors" />
               <input 
                 type="text" 
-                placeholder="Es. Milano, Lombardia, Italia..."
+                placeholder="Es. Milano, Roma, Napoli..."
                 value={location}
-                onChange={(e) => { setLocation(e.target.value); setShowError(false); }}
+                onChange={(e) => { setLocation(e.target.value); setShowError(false); setShowCitySuggestions(true); }}
+                onFocus={() => setShowCitySuggestions(true)}
                 className={cn(
                   "w-full bg-surface-container-lowest/30 border rounded-full py-5 pl-14 pr-8 text-on-surface placeholder:text-on-surface-variant/30 focus:ring-2 focus:ring-primary/20 focus:bg-surface-container-lowest/50 transition-all outline-none",
                   showError && !location.trim() ? "border-error focus:ring-error/20" : "border-white/5"
                 )}
               />
+              
+              <AnimatePresence>
+                {showCitySuggestions && citySuggestions.length > 0 && (
+                  <motion.div 
+                    initial={{ opacity: 0, y: -10 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    exit={{ opacity: 0, y: -10 }}
+                    className="absolute top-full mt-2 left-0 right-0 glass-card border border-white/10 shadow-2xl z-50 py-2"
+                  >
+                    {citySuggestions.map((city) => (
+                      <button
+                        key={city}
+                        onClick={() => { setLocation(city); setShowCitySuggestions(false); }}
+                        className="w-full text-left px-4 py-3 text-sm font-bold text-on-surface hover:bg-white/5 transition-colors"
+                      >
+                        {city}
+                      </button>
+                    ))}
+                  </motion.div>
+                )}
+              </AnimatePresence>
             </div>
           </motion.div>
 
@@ -234,6 +285,13 @@ export default function ConfigPage() {
         )}
       </AnimatePresence>
       
+      {showCitySuggestions && citySuggestions.length > 0 && (
+        <div 
+          className="fixed inset-0 z-[90]" 
+          onClick={() => setShowCitySuggestions(false)} 
+        />
+      )}
+      
       <div className="fixed bottom-24 md:bottom-10 inset-x-6 md:left-auto md:right-10 flex flex-col items-center md:items-end gap-4 z-30">
         <motion.button 
           whileHover={{ scale: isSearching ? 1 : 1.05, y: isSearching ? 0 : -5 }}
@@ -242,7 +300,7 @@ export default function ConfigPage() {
           disabled={isSearching}
           className={cn(
             "w-full md:w-auto text-surface font-black text-lg px-8 md:px-12 py-4 md:py-5 rounded-full shadow-[0_20px_50px_rgba(0,112,235,0.3)] flex items-center justify-center gap-3",
-            isSearching ? "bg-gradient-to-r from-primary/60 to-primary-dim/60 cursor-wait" : "bg-gradient-to-r from-primary to-primary-dim active:shadow-inner"
+            isSearching ? "bg-gradient-to-r from-primary to-primary-dim cursor-wait" : "bg-gradient-to-r from-primary to-primary-dim active:shadow-inner"
           )}
         >
           {isSearching ? (

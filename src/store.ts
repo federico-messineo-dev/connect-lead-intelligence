@@ -48,6 +48,7 @@ interface AppStore {
   searchPerformedThisSession: boolean;
   showSearchCompletePopup: boolean;
   selectedSearchCategories: string[];
+  selectedSearchLocation: string;
   toggleSaveLead: (lead: Lead) => void;
   isSaved: (leadId: number) => boolean;
   setSelectedLead: (leadId: number | null) => void;
@@ -61,6 +62,7 @@ interface AppStore {
   setIsSearching: (value: boolean) => void;
   setShowSearchCompletePopup: (value: boolean) => void;
   setSelectedSearchCategories: (categories: string[]) => void;
+  setSelectedSearchLocation: (location: string) => void;
 }
 
 export const useAppStore = create<AppStore>()(
@@ -74,6 +76,7 @@ export const useAppStore = create<AppStore>()(
       searchPerformedThisSession: false,
       showSearchCompletePopup: false,
       selectedSearchCategories: [],
+      selectedSearchLocation: '',
       user: {
         name: 'Mario Rossi',
         email: 'mario.rossi@example.com',
@@ -122,6 +125,7 @@ export const useAppStore = create<AppStore>()(
       setIsSearching: (value) => set({ isSearching: value }),
       setShowSearchCompletePopup: (value) => set({ showSearchCompletePopup: value }),
       setSelectedSearchCategories: (categories) => set({ selectedSearchCategories: categories }),
+      setSelectedSearchLocation: (location) => set({ selectedSearchLocation: location }),
     }),
     {
       name: 'connect-lead-intelligence-storage',
