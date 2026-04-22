@@ -112,7 +112,7 @@ export default function ConfigPage() {
           <motion.div 
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
-            className="glass-card p-6 md:p-8 group overflow-hidden"
+            className="glass-card p-6 md:p-8 group"
           >
             <div className="flex gap-4 mb-6 md:mb-8">
               <div className="w-10 h-10 md:w-12 md:h-12 rounded-2xl bg-primary/10 flex items-center justify-center text-primary border border-primary/20 shrink-0">
