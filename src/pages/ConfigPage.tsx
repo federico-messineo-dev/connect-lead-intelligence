@@ -10,7 +10,8 @@ import {
   Database,
   Loader2,
   AlertCircle,
-  Check
+  Check,
+  RotateCcw
 } from 'lucide-react';
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
@@ -24,7 +25,7 @@ export default function ConfigPage() {
   const [selectedCategories, setSelectedCategories] = useState<string[]>([]);
   const [isSearching, setIsSearching] = useState(false);
   const [showError, setShowError] = useState(false);
-  const { setSearchPerformedThisSession, setSearchResultsCount, setIsSearching: setGlobalIsSearching, setShowSearchCompletePopup, setSelectedSearchCategories, setSelectedSearchLocation, setTodayStats, todaySearchesCount, todayLeadsCount, addToSearchHistory } = useAppStore();
+  const { setSearchPerformedThisSession, setSearchResultsCount, setIsSearching: setGlobalIsSearching, setShowSearchCompletePopup, setSelectedSearchCategories, setSelectedSearchLocation, setTodayStats, todaySearchesCount, todayLeadsCount, addToSearchHistory, resetTodayStats } = useAppStore();
 
   const categories = ['Servizi B2B', 'Retail & Negozi', 'Professionisti', 'Sanità & Benessere', 'Logistica'];
 
@@ -77,13 +78,23 @@ export default function ConfigPage() {
       setSearchPerformedThisSession(true);
       setShowSearchCompletePopup(true);
       navigate('/feed');
-    }, 7000);
+    }, 4000);
   };
 
   const isValid = location.trim() && selectedCategories.length > 0;
 
   return (
-    <div className={cn("space-y-12 pb-20 transition-all duration-300", isSearching && "pointer-events-none opacity-30")}>
+    <div className={cn("space-y-12 pb-20 transition-all duration-300 relative", isSearching && "pointer-events-none opacity-30")}>
+      {/* Loading Spinner */}
+      {isSearching && (
+        <div className="fixed inset-0 flex items-center justify-center z-50">
+          <div className="text-center">
+            <Loader2 className="w-16 h-16 text-primary animate-spin mx-auto mb-4" />
+            <p className="text-xl font-bold text-white">Ricerca in corso...</p>
+          </div>
+        </div>
+      )}
+
       {/* Hero Header */}
       <div className="max-w-2xl space-y-3 md:space-y-4 text-center md:text-left">
         <motion.h1 
@@ -248,7 +259,16 @@ export default function ConfigPage() {
                 <Database className="w-5 h-5 text-primary" />
                 <span className="text-sm font-bold text-on-surface-variant">Ricerche Attive</span>
               </div>
-              <span className="bg-primary/20 text-primary border border-primary/20 px-3 py-1 rounded-full text-xs font-black">{todaySearchesCount} / 5</span>
+              <div className="flex items-center gap-2">
+                <button 
+                  onClick={resetTodayStats}
+                  className="p-1.5 text-on-surface-variant hover:text-primary transition-colors rounded-full hover:bg-primary/10"
+                  title="Reset statistiche"
+                >
+                  <RotateCcw className="w-4 h-4" />
+                </button>
+                <span className="bg-primary/20 text-primary border border-primary/20 px-3 py-1 rounded-full text-xs font-black">{todaySearchesCount} / 5</span>
+              </div>
             </div>
             <div className="h-px bg-white/5" />
             <div className="space-y-1">

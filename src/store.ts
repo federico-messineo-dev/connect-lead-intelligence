@@ -77,6 +77,7 @@ interface AppStore {
   setSelectedSearchCategories: (categories: string[]) => void;
   setSelectedSearchLocation: (location: string) => void;
   setTodayStats: (searches: number, leads: number) => void;
+  resetTodayStats: () => void;
   addToSearchHistory: (entry: Omit<SearchHistoryEntry, 'id' | 'createdAt'>) => void;
   deleteFromSearchHistory: (id: string) => void;
   clearSearchHistory: () => void;
@@ -147,6 +148,7 @@ export const useAppStore = create<AppStore>()(
       setSelectedSearchCategories: (categories) => set({ selectedSearchCategories: categories }),
       setSelectedSearchLocation: (location) => set({ selectedSearchLocation: location }),
       setTodayStats: (searches, leads) => set({ todaySearchesCount: Math.min(searches, 5), todayLeadsCount: leads }),
+      resetTodayStats: () => set({ todaySearchesCount: 0, todayLeadsCount: 0 }),
       addToSearchHistory: (entry) => set((state) => ({
         searchHistory: [
           {
