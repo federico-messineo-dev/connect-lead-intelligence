@@ -59,30 +59,39 @@ export default function LeadsPage() {
   const regularLeads = filteredLeads.filter(l => l.score < 80);
 
   const handleExportCSV = () => {
-    if (savedLeads.length === 0) return;
+    if (enrichedSavedLeads.length === 0) {
+      alert('Nessun lead da esportare.');
+      return;
+    }
 
-    const headers = ['ID', 'Nome', 'Settore', 'Location', 'Score', 'Mobile', 'Email', 'Telefono'];
-    const rows = enrichedSavedLeads.map(lead => [
-      lead.id,
-      `"${lead.name}"`,
-      `"${lead.category}"`,
-      `"${lead.location}"`,
-      lead.score,
-      lead.mobile || '',
-      lead.email || '',
-      lead.phone || ''
-    ]);
+    try {
+      const headers = ['ID', 'Nome', 'Settore', 'Location', 'Score SMM', 'Mobile', 'Email', 'Telefono'];
+      const rows = enrichedSavedLeads.map(lead => [
+        lead.id,
+        `"${lead.name}"`,
+        `"${lead.category}"`,
+        `"${lead.location}"`,
+        lead.score,
+        lead.mobile?.replace('+', '') || '',
+        lead.email || '',
+        lead.phone || ''
+      ]);
 
-    const csvContent = [headers, ...rows].map(e => e.join(",")).join("\n");
-    const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
-    const url = URL.createObjectURL(blob);
-    const link = document.createElement("a");
-    link.setAttribute("href", url);
-    link.setAttribute("download", `saved_leads_${new Date().toISOString().split('T')[0]}.csv`);
-    link.style.visibility = 'hidden';
-    document.body.appendChild(link);
-    link.click();
-    document.body.removeChild(link);
+      const csvContent = [headers.join(','), ...rows.map(e => e.join(","))].join("\n");
+      const blob = new Blob(["\ufeff" + csvContent], { type: 'text/csv;charset=utf-8;' });
+      const url = URL.createObjectURL(blob);
+      const link = document.createElement("a");
+      link.setAttribute("href", url);
+      link.setAttribute("download", `leads_export_${new Date().toISOString().split('T')[0]}.csv`);
+      link.style.visibility = 'hidden';
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+      URL.revokeObjectURL(url);
+    } catch (error) {
+      console.error('CSV export failed:', error);
+      alert('Errore nell\'esportazione CSV. Riprova.');
+    }
   };
 
   return (

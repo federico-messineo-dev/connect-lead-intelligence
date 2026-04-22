@@ -8,7 +8,10 @@ import {
   ChevronRight,
   MoreHorizontal,
   X,
-  Check
+  Check,
+  Search,
+  Loader2,
+  CheckCircle2
 } from 'lucide-react';
 import { useState, useRef, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
@@ -24,16 +27,35 @@ export default function FeedPage() {
   const navigate = useNavigate();
   const [activeFilter, setActiveFilter] = useState('Tutti i Settori');
   const [showMoreFilters, setShowMoreFilters] = useState(false);
+  const [showSearchPopup, setShowSearchPopup] = useState(false);
+  const [searchStarted, setSearchStarted] = useState(false);
   const moreRef = useRef<HTMLDivElement>(null);
   const toggleSaveLead = useAppStore(state => state.toggleSaveLead);
   const savedLeads = useAppStore(state => state.savedLeads);
   const setSelectedLead = useAppStore(state => state.setSelectedLead);
+  const { hasSearched, searchResultsCount, setHasSearched, setSearchResultsCount, isSearching, setIsSearching } = useAppStore();
 
   const isSaved = (leadId: number) => savedLeads.some(l => l.id === leadId);
 
   const handleLeadClick = (leadId: number) => {
     setSelectedLead(leadId);
     navigate('/coach');
+  };
+
+  const handleStartSearch = () => {
+    setSearchStarted(true);
+    setIsSearching(true);
+    
+    setTimeout(() => {
+      setIsSearching(false);
+      setHasSearched(true);
+      setSearchResultsCount(ALL_LEADS.length);
+      setShowSearchPopup(true);
+      
+      setTimeout(() => {
+        setShowSearchPopup(false);
+      }, 3000);
+    }, 7000);
   };
 
   useEffect(() => {
@@ -50,8 +72,100 @@ export default function FeedPage() {
     ? ALL_LEADS 
     : ALL_LEADS.filter(l => l.category === activeFilter);
 
+  if (!hasSearched) {
+    return (
+      <div className="space-y-12 pb-20">
+        {/* Empty State - Start Search CTA */}
+        <div className="flex flex-col items-center justify-center min-h-[60vh] text-center space-y-8">
+          <motion.div 
+            initial={{ opacity: 0, scale: 0.9 }}
+            animate={{ opacity: 1, scale: 1 }}
+            className="w-32 h-32 rounded-[40px] bg-gradient-to-br from-primary via-secondary to-tertiary flex items-center justify-center shadow-2xl shadow-primary/30"
+          >
+            <Search className="w-16 h-16 text-surface" />
+          </motion.div>
+          
+          <div className="space-y-4 max-w-md">
+            <h1 className="text-4xl md:text-5xl font-black tracking-tighter leading-tight text-white">
+              Nessuna Ricerca Attiva
+            </h1>
+            <p className="text-on-surface-variant text-lg font-medium leading-relaxed">
+              Per visualizzare i lead disponibili, avvia prima una ricerca dalla sezione CONFIGURA RICERCA.
+            </p>
+          </div>
+
+          <motion.button 
+            whileHover={{ scale: 1.02 }}
+            whileTap={{ scale: 0.98 }}
+            onClick={handleStartSearch}
+            disabled={searchStarted}
+            className={cn(
+              "px-12 py-5 rounded-full bg-gradient-to-r from-primary to-primary-dim text-surface font-black text-xl shadow-xl shadow-primary/20 flex items-center gap-3",
+              searchStarted && "opacity-50 cursor-not-allowed"
+            )}
+          >
+            {searchStarted ? (
+              <>
+                <Loader2 className="w-6 h-6 animate-spin" />
+                Ricerca in corso...
+              </>
+            ) : (
+              <>
+                <Search className="w-6 h-6" />
+                Avvia Ricerca
+              </>
+            )}
+          </motion.button>
+        </div>
+
+        {/* Search Popup */}
+        <AnimatePresence>
+          {showSearchPopup && (
+            <motion.div 
+              initial={{ opacity: 0, y: 50, scale: 0.9 }}
+              animate={{ opacity: 1, y: 0, scale: 1 }}
+              exit={{ opacity: 0, y: 50, scale: 0.9 }}
+              className="fixed bottom-32 left-1/2 -translate-x-1/2 z-[100] glass-card px-8 py-5 border-primary/30 shadow-2xl flex items-center gap-4"
+            >
+              <div className="w-12 h-12 rounded-2xl bg-emerald-500/20 flex items-center justify-center text-emerald-500 border border-emerald-500/30">
+                <CheckCircle2 className="w-6 h-6" />
+              </div>
+              <div>
+                <p className="text-lg font-black text-white">Ricerca Completata!</p>
+                <p className="text-sm text-on-surface-variant font-medium">
+                  Trovate <span className="text-primary font-black">{searchResultsCount}</span> attività nella tua zona.
+                </p>
+              </div>
+            </motion.div>
+          )}
+        </AnimatePresence>
+      </div>
+    );
+  }
+
   return (
     <div className="space-y-12 pb-20">
+      <AnimatePresence>
+        {showSearchPopup && (
+          <motion.div 
+            initial={{ opacity: 0, y: 50, scale: 0.9 }}
+            animate={{ opacity: 1, y: 0, scale: 1 }}
+            exit={{ opacity: 0, y: 50, scale: 0.9 }}
+            className="fixed top-24 left-1/2 -translate-x-1/2 z-[100] glass-card px-8 py-5 border-primary/30 shadow-2xl flex items-center gap-4"
+          >
+            <div className="w-12 h-12 rounded-2xl bg-emerald-500/20 flex items-center justify-center text-emerald-500 border border-emerald-500/30">
+              <CheckCircle2 className="w-6 h-6" />
+            </div>
+            <div>
+              <p className="text-lg font-black text-white">Ricerca Completata!</p>
+              <p className="text-sm text-on-surface-variant font-medium">
+                Trovate <span className="text-primary font-black">{searchResultsCount}</span> attività nella tua zona.
+              </p>
+            </div>
+          </motion.div>
+        )}
+      </AnimatePresence>
+
       <div className="space-y-2 md:space-y-4">
         <h1 className="text-4xl md:text-[3.5rem] font-black tracking-tighter leading-tight text-white">
           Feed Attività
@@ -275,4 +389,3 @@ export default function FeedPage() {
     </div>
   );
 }
-

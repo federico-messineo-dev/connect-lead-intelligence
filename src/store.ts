@@ -42,6 +42,9 @@ interface AppStore {
   selectedLeadId: number | null;
   user: UserProfile;
   notifications: Notification[];
+  hasSearched: boolean;
+  searchResultsCount: number;
+  isSearching: boolean;
   toggleSaveLead: (lead: Lead) => void;
   isSaved: (leadId: number) => boolean;
   setSelectedLead: (leadId: number | null) => void;
@@ -49,6 +52,9 @@ interface AppStore {
   addNotification: (notification: Omit<Notification, 'id' | 'read' | 'createdAt'>) => void;
   markNotificationAsRead: (id: string) => void;
   clearNotifications: () => void;
+  setHasSearched: (value: boolean) => void;
+  setSearchResultsCount: (count: number) => void;
+  setIsSearching: (value: boolean) => void;
 }
 
 export const useAppStore = create<AppStore>()(
@@ -56,6 +62,9 @@ export const useAppStore = create<AppStore>()(
     (set, get) => ({
       savedLeads: [],
       selectedLeadId: null,
+      hasSearched: false,
+      searchResultsCount: 0,
+      isSearching: false,
       user: {
         name: 'Mario Rossi',
         email: 'mario.rossi@example.com',
@@ -98,6 +107,9 @@ export const useAppStore = create<AppStore>()(
         notifications: state.notifications.map(n => n.id === id ? { ...n, read: true } : n)
       })),
       clearNotifications: () => set({ notifications: [] }),
+      setHasSearched: (value) => set({ hasSearched: value }),
+      setSearchResultsCount: (count) => set({ searchResultsCount: count }),
+      setIsSearching: (value) => set({ isSearching: value }),
     }),
     {
       name: 'connect-lead-intelligence-storage',

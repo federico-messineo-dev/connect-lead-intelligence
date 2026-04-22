@@ -37,24 +37,44 @@ export default function CoachPage() {
     if (!reportRef.current) return;
     
     setIsGeneratingPDF(true);
+    
     try {
       const canvas = await html2canvas(reportRef.current, {
         scale: 2,
         useCORS: true,
-        backgroundColor: '#0f172a', // Match theme surface color
+        allowTaint: true,
+        backgroundColor: '#0f172a',
+        logging: false,
+        windowWidth: reportRef.current.scrollWidth,
+        windowHeight: reportRef.current.scrollHeight,
+        x: 0,
+        y: 0,
+        width: Math.min(reportRef.current.scrollWidth, 1200),
+        height: Math.min(reportRef.current.scrollHeight, 1600)
       });
       
-      const imgData = canvas.toDataURL('image/png');
+      const { jsPDF } = await import('jspdf');
+      const imgData = canvas.toDataURL('image/jpeg', 0.95);
+      
       const pdf = new jsPDF({
         orientation: 'portrait',
         unit: 'px',
-        format: [canvas.width, canvas.height]
+        format: [Math.min(canvas.width, 595), Math.min(canvas.height, 842)]
       });
       
-      pdf.addImage(imgData, 'PNG', 0, 0, canvas.width, canvas.height);
+      const pageWidth = pdf.internal.pageSize.getWidth();
+      const pageHeight = pdf.internal.pageSize.getHeight();
+      const imgWidth = canvas.width;
+      const imgHeight = canvas.height;
+      const ratio = Math.min(pageWidth / imgWidth, pageHeight / imgHeight);
+      const imgX = (pageWidth - imgWidth * ratio) / 2;
+      const imgY = 20;
+      
+      pdf.addImage(imgData, 'JPEG', imgX, imgY, imgWidth * ratio, imgHeight * ratio);
       pdf.save(`AI_Report_${lead.name.replace(/\s+/g, '_')}.pdf`);
     } catch (error) {
       console.error('PDF generation failed:', error);
+      alert('Errore nella generazione del PDF. Riprova.');
     } finally {
       setIsGeneratingPDF(false);
     }

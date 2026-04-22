@@ -102,7 +102,7 @@ export function Layout({ children }: LayoutProps) {
       
       {/* Mobile Navbar (Bottom) */}
       <nav className="md:hidden fixed bottom-0 left-0 right-0 h-20 bg-surface/80 backdrop-blur-3xl border-t border-white/5 z-[100] flex items-center justify-around px-4">
-        {navItems.slice(0, 4).map((item) => {
+        {navItems.slice(0, 3).map((item) => {
           const isActive = location.pathname.startsWith(item.path);
           return (
             <NavLink
