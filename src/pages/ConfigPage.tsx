@@ -21,7 +21,7 @@ export default function ConfigPage() {
   const navigate = useNavigate();
   const [selectedCategories, setSelectedCategories] = useState(['Ristoranti', 'Hotel & Ospitalità']);
   const [isSearching, setIsSearching] = useState(false);
-  const { setHasSearched, setSearchResultsCount, setIsSearching: setGlobalIsSearching } = useAppStore();
+  const { setSearchPerformedThisSession, setSearchResultsCount, setIsSearching: setGlobalIsSearching } = useAppStore();
 
   const categories = ['Servizi B2B', 'Retail & Negozi', 'Professionisti', 'Sanità & Benessere', 'Logistica'];
 
@@ -32,7 +32,7 @@ export default function ConfigPage() {
     setTimeout(() => {
       setIsSearching(false);
       setGlobalIsSearching(false);
-      setHasSearched(true);
+      setSearchPerformedThisSession(true);
       setSearchResultsCount(ALL_LEADS.length);
       navigate('/feed');
     }, 7000);

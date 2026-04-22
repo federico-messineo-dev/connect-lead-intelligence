@@ -35,7 +35,7 @@ export default function FeedPage() {
   const toggleSaveLead = useAppStore(state => state.toggleSaveLead);
   const savedLeads = useAppStore(state => state.savedLeads);
   const setSelectedLead = useAppStore(state => state.setSelectedLead);
-  const { hasSearched, searchResultsCount, setHasSearched, setSearchResultsCount, isSearching, setIsSearching } = useAppStore();
+  const { hasSearched, searchResultsCount, setHasSearched, setSearchResultsCount, searchPerformedThisSession, setSearchPerformedThisSession } = useAppStore();
 
   const isSaved = (leadId: number) => savedLeads.some(l => l.id === leadId);
 
@@ -74,7 +74,7 @@ export default function FeedPage() {
     ? ALL_LEADS 
     : ALL_LEADS.filter(l => l.category === activeFilter);
 
-  if (!hasSearched) {
+  if (!searchPerformedThisSession) {
     return (
       <div className="space-y-12 pb-20">
         {/* Empty State - Start Search CTA */}
