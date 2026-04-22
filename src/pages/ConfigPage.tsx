@@ -138,34 +138,6 @@ export default function ConfigPage() {
                 )}
               />
             </div>
-            
-            {/* City Suggestions Dropdown - Outside the card */}
-            <AnimatePresence>
-              {showCitySuggestions && citySuggestions.length > 0 && (
-                <>
-                  <div 
-                    className="fixed inset-0 z-[150]" 
-                    onClick={() => setShowCitySuggestions(false)} 
-                  />
-                  <motion.div 
-                    initial={{ opacity: 0, y: -10 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    exit={{ opacity: 0, y: -10 }}
-                    className="absolute top-full left-0 right-0 mt-2 glass-card border border-white/10 shadow-2xl z-[200] py-2 max-h-48 overflow-y-auto w-full"
-                  >
-                    {citySuggestions.map((city) => (
-                      <button
-                        key={city}
-                        onClick={() => { setLocation(city); setShowCitySuggestions(false); }}
-                        className="w-full text-left px-4 py-3 text-sm font-bold text-on-surface hover:bg-white/5 transition-colors"
-                      >
-                        {city}
-                      </button>
-                    ))}
-                  </motion.div>
-                </>
-              )}
-            </AnimatePresence>
           </motion.div>
 
           {/* City Suggestions Dropdown - Fixed position */}
