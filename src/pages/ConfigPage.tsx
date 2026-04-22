@@ -152,7 +152,7 @@ export default function ConfigPage() {
                   initial={{ opacity: 0, y: -10 }}
                   animate={{ opacity: 1, y: 0 }}
                   exit={{ opacity: 0, y: -10 }}
-                  className="fixed top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[90%] max-w-sm md:w-[400px] glass-card border border-white/10 shadow-2xl z-[500] py-2 max-h-48 overflow-y-auto"
+                  className="fixed top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[90%] max-w-sm md:w-[400px] glass-card border-2 border-primary/50 shadow-[0_0_50px_rgba(99,102,241,0.5)] z-[9999] py-2 max-h-48 overflow-y-auto"
                 >
                   {citySuggestions.map((city) => (
                     <button
