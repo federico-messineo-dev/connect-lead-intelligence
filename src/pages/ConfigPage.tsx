@@ -40,8 +40,6 @@ export default function ConfigPage() {
   const [selectedCategories, setSelectedCategories] = useState<string[]>([]);
   const [isSearching, setIsSearching] = useState(false);
   const [showError, setShowError] = useState(false);
-  const [showCitySuggestions, setShowCitySuggestions] = useState(false);
-  const [citySuggestions, setCitySuggestions] = useState<{ place_id: string; description: string }[]>([]);
   const inputRef = useRef<HTMLInputElement>(null);
   const autocompleteRef = useRef<google.maps.places.Autocomplete | null>(null);
   const { setSearchPerformedThisSession, setSearchResultsCount, setIsSearching: setGlobalIsSearching, setShowSearchCompletePopup, setSelectedSearchCategories, setSelectedSearchLocation, setTodayStats, todaySearchesCount, todayLeadsCount } = useAppStore();
@@ -52,10 +50,10 @@ export default function ConfigPage() {
     const loadGooglePlaces = () => {
       if (!window.google || !window.google.maps || !window.google.maps.places) {
         const script = document.createElement('script');
-        script.src = `https://maps.googleapis.com/maps/api/js?key=${GOOGLE_API_KEY}&libraries=places&language=it`;
+        script.src = `https://maps.googleapis.com/maps/api/js?key=${GOOGLE_API_KEY}&libraries=places&language=it&callback=initGooglePlaces`;
         script.async = true;
         script.defer = true;
-        script.onload = () => initAutocomplete();
+        (window as unknown as { initGooglePlaces: () => void }).initGooglePlaces = initAutocomplete;
         document.head.appendChild(script);
       } else {
         initAutocomplete();
@@ -67,14 +65,14 @@ export default function ConfigPage() {
       
       autocompleteRef.current = new window.google.maps.places.Autocomplete(inputRef.current, {
         types: ['(cities)'],
-        fields: ['place_id', 'description'],
+        fields: ['place_id', 'formatted_address'],
         componentRestrictions: { country: 'it' },
       });
 
       autocompleteRef.current.addListener('place_changed', () => {
         const place = autocompleteRef.current?.getPlace();
-        if (place) {
-          setLocation(place.description || '');
+        if (place?.formatted_address) {
+          setLocation(place.formatted_address);
           setShowCitySuggestions(false);
         }
       });
@@ -93,30 +91,14 @@ export default function ConfigPage() {
     const value = e.target.value;
     setLocation(value);
     setShowError(false);
-    
-    if (value.length >= 2 && window.google?.maps?.places) {
-      const service = new window.google.maps.places.AutocompleteService();
-      service.getPlacePredictions(
-        { input: value, types: ['(cities)'], componentRestrictions: { country: 'it' } },
-        (predictions, status) => {
-          if (status === google.maps.places.PlacesServiceStatus.OK && predictions) {
-            setCitySuggestions(
-              predictions.slice(0, 5).map(p => ({ place_id: p.place_id, description: p.description }))
-            );
-            setShowCitySuggestions(true);
-          }
-        }
-      );
-    } else if (value.length < 2) {
-      setShowCitySuggestions(false);
-    }
   };
 
-  const handleSelectCity = (city: { place_id: string; description: string }) => {
-    setLocation(city.description);
-    setShowCitySuggestions(false);
-    if (inputRef.current) {
-      inputRef.current.value = city.description;
+  const handleKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
+    if (e.key === 'Enter') {
+      e.preventDefault();
+      if (location.trim()) {
+        setShowCitySuggestions(false);
+      }
     }
   };
 
@@ -210,7 +192,7 @@ export default function ConfigPage() {
                 placeholder="Es. Milano, Roma, Napoli..."
                 value={location}
                 onChange={handleLocationChange}
-                onFocus={() => location.length >= 2 && setShowCitySuggestions(true)}
+                onKeyDown={handleKeyDown}
                 className={cn(
                   "w-full bg-surface-container-lowest/30 border rounded-full py-5 pl-14 pr-8 text-on-surface placeholder:text-on-surface-variant/30 focus:ring-2 focus:ring-primary/20 focus:bg-surface-container-lowest/50 transition-all outline-none",
                   showError && !location.trim() ? "border-error focus:ring-error/20" : "border-white/5"
@@ -286,39 +268,11 @@ export default function ConfigPage() {
                 className="bg-white/5 rounded-full border border-white/5 px-6 py-4 text-sm outline-none focus:ring-1 focus:ring-secondary/20"
               />
             </div>
-           </motion.div>
-         </div>
+</motion.div>
+          </div>
 
-         {/* City Suggestions Dropdown - Fixed position */}
-         <AnimatePresence>
-           {showCitySuggestions && citySuggestions.length > 0 && (
-             <>
-               <div 
-                 className="fixed inset-0 z-[50]" 
-                 onClick={() => setShowCitySuggestions(false)} 
-               />
-               <motion.div 
-                 initial={{ opacity: 0, y: -10 }}
-                 animate={{ opacity: 1, y: 0 }}
-                 exit={{ opacity: 0, y: -10 }}
-                 className="fixed top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[90%] max-w-sm md:w-[400px] glass-card border-2 border-primary/50 shadow-[0_0_50px_rgba(99,102,241,0.5)] z-[9999] py-2 max-h-48 overflow-y-auto"
-               >
-                 {citySuggestions.map((city) => (
-                   <button
-                     key={city}
-                     onClick={() => { setLocation(city); setShowCitySuggestions(false); }}
-                     className="w-full text-left px-4 py-3 text-sm font-bold text-on-surface hover:bg-white/5 transition-colors"
-                   >
-                     {city}
-                   </button>
-                 ))}
-               </motion.div>
-             </>
-           )}
-         </AnimatePresence>
-
-         {/* Right Col: Meta & Actions */}
-        <div className="space-y-8">
+          {/* Right Col: Meta & Actions */}
+         <div className="space-y-8">
           {/* Keywords Card */}
           <motion.div 
             initial={{ opacity: 0, x: 20 }}
