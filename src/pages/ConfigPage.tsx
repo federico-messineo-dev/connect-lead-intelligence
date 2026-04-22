@@ -137,15 +137,21 @@ export default function ConfigPage() {
                   showError && !location.trim() ? "border-error focus:ring-error/20" : "border-white/5"
                 )}
               />
-              
-              <AnimatePresence>
-                {showCitySuggestions && citySuggestions.length > 0 && (
+            </div>
+            
+            {/* City Suggestions Dropdown - Outside the card */}
+            <AnimatePresence>
+              {showCitySuggestions && citySuggestions.length > 0 && (
+                <>
+                  <div 
+                    className="fixed inset-0 z-[90]" 
+                    onClick={() => setShowCitySuggestions(false)} 
+                  />
                   <motion.div 
                     initial={{ opacity: 0, y: -10 }}
                     animate={{ opacity: 1, y: 0 }}
                     exit={{ opacity: 0, y: -10 }}
-                    className="fixed top-24 md:top-auto left-4 right-4 md:left-0 md:right-0 md:w-full md:max-w-md glass-card border border-white/10 shadow-2xl z-[100] py-2 max-h-48 overflow-y-auto"
-                    style={{ maxHeight: '200px' }}
+                    className="absolute top-full left-0 right-0 mt-2 glass-card border border-white/10 shadow-2xl z-[100] py-2 max-h-48 overflow-y-auto"
                   >
                     {citySuggestions.map((city) => (
                       <button
@@ -157,9 +163,9 @@ export default function ConfigPage() {
                       </button>
                     ))}
                   </motion.div>
-                )}
-              </AnimatePresence>
-            </div>
+                </>
+              )}
+            </AnimatePresence>
           </motion.div>
 
           {/* Category Card */}
@@ -300,13 +306,6 @@ export default function ConfigPage() {
           </motion.div>
         )}
       </AnimatePresence>
-      
-      {showCitySuggestions && citySuggestions.length > 0 && (
-        <div 
-          className="fixed inset-0 z-[90]" 
-          onClick={() => setShowCitySuggestions(false)} 
-        />
-      )}
       
       <div className="fixed bottom-24 md:bottom-10 inset-x-6 md:left-auto md:right-10 flex flex-col items-center md:items-end gap-4 z-30">
         <motion.button 
