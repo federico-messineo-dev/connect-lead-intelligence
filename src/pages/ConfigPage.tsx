@@ -3,6 +3,7 @@ import {
   Rocket, 
   MapPin, 
   Store, 
+  Search,
   X, 
   PlusCircle, 
   Key,
