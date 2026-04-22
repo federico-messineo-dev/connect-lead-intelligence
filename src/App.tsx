@@ -12,6 +12,7 @@ import ConfigPage from './pages/ConfigPage';
 import LeadsPage from './pages/LeadsPage';
 import CoachPage from './pages/CoachPage';
 import SettingsPage from './pages/SettingsPage';
+import HistoryPage from './pages/HistoryPage';
 
 export default function App() {
   return (
@@ -26,6 +27,7 @@ export default function App() {
           <Route path="/leads" element={<LeadsPage />} />
           <Route path="/coach" element={<CoachPage />} />
           <Route path="/settings" element={<SettingsPage />} />
+          <Route path="/history" element={<HistoryPage />} />
           <Route path="*" element={<Navigate to="/" replace />} />
         </Routes>
       </Layout>

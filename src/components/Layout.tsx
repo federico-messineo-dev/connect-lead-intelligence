@@ -18,7 +18,8 @@ import {
   Home,
   Database,
   Users,
-  X
+  X,
+  History
 } from 'lucide-react';
 import { ReactNode, useState, useEffect, useRef } from 'react';
 import { NavLink, useLocation, useNavigate } from 'react-router-dom';
@@ -34,6 +35,7 @@ const navItems = [
   { icon: LayoutDashboard, label: 'Home/Feed', path: '/feed' },
   { icon: BarChart3, label: 'Configura Ricerca', path: '/config' },
   { icon: Bookmark, label: 'Attività Salvate', path: '/leads' },
+  { icon: History, label: 'Cronologia', path: '/history' },
   { icon: Sparkles, label: 'AI Coach', path: '/coach' },
   { icon: Settings, label: 'Impostazioni', path: '/settings' },
 ];

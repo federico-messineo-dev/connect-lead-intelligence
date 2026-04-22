@@ -24,7 +24,7 @@ export default function ConfigPage() {
   const [selectedCategories, setSelectedCategories] = useState<string[]>([]);
   const [isSearching, setIsSearching] = useState(false);
   const [showError, setShowError] = useState(false);
-  const { setSearchPerformedThisSession, setSearchResultsCount, setIsSearching: setGlobalIsSearching, setShowSearchCompletePopup, setSelectedSearchCategories, setSelectedSearchLocation, setTodayStats, todaySearchesCount, todayLeadsCount } = useAppStore();
+  const { setSearchPerformedThisSession, setSearchResultsCount, setIsSearching: setGlobalIsSearching, setShowSearchCompletePopup, setSelectedSearchCategories, setSelectedSearchLocation, setTodayStats, todaySearchesCount, todayLeadsCount, addToSearchHistory } = useAppStore();
 
   const categories = ['Servizi B2B', 'Retail & Negozi', 'Professionisti', 'Sanità & Benessere', 'Logistica'];
 
@@ -67,6 +67,13 @@ export default function ConfigPage() {
       });
       setSearchResultsCount(filtered.length);
       setTodayStats(todaySearchesCount + 1, todayLeadsCount + filtered.length);
+      addToSearchHistory({
+        location: location.trim(),
+        categories: selectedCategories,
+        keywords: '',
+        resultsCount: filtered.length,
+        leadsFound: filtered
+      });
       setSearchPerformedThisSession(true);
       setShowSearchCompletePopup(true);
       navigate('/feed');

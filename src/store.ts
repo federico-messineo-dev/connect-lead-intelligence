@@ -21,6 +21,16 @@ export interface Lead {
   };
 }
 
+export interface SearchHistoryEntry {
+  id: string;
+  location: string;
+  categories: string[];
+  keywords: string;
+  resultsCount: number;
+  leadsFound: Lead[];
+  createdAt: string;
+}
+
 export interface Notification {
   id: string;
   title: string;
@@ -51,6 +61,7 @@ interface AppStore {
   selectedSearchLocation: string;
   todaySearchesCount: number;
   todayLeadsCount: number;
+  searchHistory: SearchHistoryEntry[];
   toggleSaveLead: (lead: Lead) => void;
   isSaved: (leadId: number) => boolean;
   setSelectedLead: (leadId: number | null) => void;
@@ -66,6 +77,9 @@ interface AppStore {
   setSelectedSearchCategories: (categories: string[]) => void;
   setSelectedSearchLocation: (location: string) => void;
   setTodayStats: (searches: number, leads: number) => void;
+  addToSearchHistory: (entry: Omit<SearchHistoryEntry, 'id' | 'createdAt'>) => void;
+  deleteFromSearchHistory: (id: string) => void;
+  clearSearchHistory: () => void;
 }
 
 export const useAppStore = create<AppStore>()(
@@ -82,6 +96,7 @@ export const useAppStore = create<AppStore>()(
       selectedSearchLocation: '',
       todaySearchesCount: 1,
       todayLeadsCount: 0,
+      searchHistory: [],
       user: {
         name: 'Mario Rossi',
         email: 'mario.rossi@example.com',
@@ -132,6 +147,20 @@ export const useAppStore = create<AppStore>()(
       setSelectedSearchCategories: (categories) => set({ selectedSearchCategories: categories }),
       setSelectedSearchLocation: (location) => set({ selectedSearchLocation: location }),
       setTodayStats: (searches, leads) => set({ todaySearchesCount: Math.min(searches, 5), todayLeadsCount: leads }),
+      addToSearchHistory: (entry) => set((state) => ({
+        searchHistory: [
+          {
+            ...entry,
+            id: Math.random().toString(36).substring(7),
+            createdAt: new Date().toISOString()
+          },
+          ...state.searchHistory
+        ]
+      })),
+      deleteFromSearchHistory: (id) => set((state) => ({
+        searchHistory: state.searchHistory.filter(e => e.id !== id)
+      })),
+      clearSearchHistory: () => set({ searchHistory: [] }),
     }),
     {
       name: 'connect-lead-intelligence-storage',
