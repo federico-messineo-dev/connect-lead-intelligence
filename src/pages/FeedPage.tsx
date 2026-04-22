@@ -9,13 +9,11 @@ import {
   MoreHorizontal,
   X,
   Check,
-  Search,
-  Loader2,
-  CheckCircle2,
-  Settings
+  Settings,
+  CheckCircle2
 } from 'lucide-react';
 import { useState, useRef, useEffect } from 'react';
-import { useNavigate, useLocation } from 'react-router-dom';
+import { useNavigate } from 'react-router-dom';
 import { AnimatePresence, motion } from 'motion/react';
 import { cn } from '../lib/utils';
 import { useAppStore } from '../store';
@@ -26,16 +24,13 @@ const OTHER_FILTERS = ['Salute & Benessere', 'Automotive', 'Real Estate', 'Educa
 
 export default function FeedPage() {
   const navigate = useNavigate();
-  const location = useLocation();
   const [activeFilter, setActiveFilter] = useState('Tutti i Settori');
   const [showMoreFilters, setShowMoreFilters] = useState(false);
-  const [showSearchPopup, setShowSearchPopup] = useState(false);
-  const [searchStarted, setSearchStarted] = useState(false);
   const moreRef = useRef<HTMLDivElement>(null);
   const toggleSaveLead = useAppStore(state => state.toggleSaveLead);
   const savedLeads = useAppStore(state => state.savedLeads);
   const setSelectedLead = useAppStore(state => state.setSelectedLead);
-  const { hasSearched, searchResultsCount, setHasSearched, setSearchResultsCount, searchPerformedThisSession, setSearchPerformedThisSession } = useAppStore();
+  const { hasSearched, searchResultsCount, searchPerformedThisSession, showSearchCompletePopup, setShowSearchCompletePopup } = useAppStore();
 
   const isSaved = (leadId: number) => savedLeads.some(l => l.id === leadId);
 
@@ -44,21 +39,14 @@ export default function FeedPage() {
     navigate('/coach');
   };
 
-  const handleStartSearch = () => {
-    setSearchStarted(true);
-    setIsSearching(true);
-    
-    setTimeout(() => {
-      setIsSearching(false);
-      setHasSearched(true);
-      setSearchResultsCount(ALL_LEADS.length);
-      setShowSearchPopup(true);
-      
-      setTimeout(() => {
-        setShowSearchPopup(false);
+  useEffect(() => {
+    if (hasSearched && showSearchCompletePopup) {
+      const timer = setTimeout(() => {
+        setShowSearchCompletePopup(false);
       }, 3000);
-    }, 7000);
-  };
+      return () => clearTimeout(timer);
+    }
+  }, [hasSearched, showSearchCompletePopup, setShowSearchCompletePopup]);
 
   useEffect(() => {
     function handleClickOutside(event: MouseEvent) {
@@ -84,7 +72,7 @@ export default function FeedPage() {
             animate={{ opacity: 1, scale: 1 }}
             className="w-32 h-32 rounded-[40px] bg-gradient-to-br from-primary via-secondary to-tertiary flex items-center justify-center shadow-2xl shadow-primary/30"
           >
-            <Search className="w-16 h-16 text-surface" />
+            <Settings className="w-16 h-16 text-surface" />
           </motion.div>
           
           <div className="space-y-4 max-w-md">
@@ -106,36 +94,15 @@ export default function FeedPage() {
             Configura Ricerca
           </motion.button>
         </div>
-
-        {/* Search Popup - Mobile */}
-        <AnimatePresence>
-          {showSearchPopup && (
-            <motion.div 
-              initial={{ opacity: 0, y: 50, scale: 0.9 }}
-              animate={{ opacity: 1, y: 0, scale: 1 }}
-              exit={{ opacity: 0, y: 50, scale: 0.9 }}
-              className="fixed bottom-36 left-4 right-4 md:left-auto md:right-auto md:bottom-32 md:left-1/2 md:-translate-x-1/2 z-[100] glass-card px-6 py-5 border-2 border-emerald-500/50 shadow-[0_0_40px_rgba(16,185,129,0.4)] flex items-center gap-4"
-            >
-              <div className="w-14 h-14 rounded-2xl bg-emerald-500/20 flex items-center justify-center text-emerald-500 border-2 border-emerald-500/50 shrink-0">
-                <CheckCircle2 className="w-7 h-7" />
-              </div>
-              <div>
-                <p className="text-xl font-black text-white">Ricerca Completata!</p>
-                <p className="text-sm text-on-surface-variant font-medium">
-                  Trovate <span className="text-primary font-black text-lg">{searchResultsCount}</span> attività nella tua zona.
-                </p>
-              </div>
-            </motion.div>
-          )}
-        </AnimatePresence>
       </div>
     );
   }
 
   return (
     <div className="space-y-12 pb-20">
+      {/* Search Complete Popup */}
       <AnimatePresence>
-        {showSearchPopup && (
+        {showSearchCompletePopup && (
           <motion.div 
             initial={{ opacity: 0, y: 50, scale: 0.9 }}
             animate={{ opacity: 1, y: 0, scale: 1 }}

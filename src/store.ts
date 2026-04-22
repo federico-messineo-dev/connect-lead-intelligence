@@ -46,6 +46,7 @@ interface AppStore {
   searchResultsCount: number;
   isSearching: boolean;
   searchPerformedThisSession: boolean;
+  showSearchCompletePopup: boolean;
   toggleSaveLead: (lead: Lead) => void;
   isSaved: (leadId: number) => boolean;
   setSelectedLead: (leadId: number | null) => void;
@@ -55,6 +56,9 @@ interface AppStore {
   clearNotifications: () => void;
   setHasSearched: (value: boolean) => void;
   setSearchResultsCount: (count: number) => void;
+  setSearchPerformedThisSession: (value: boolean) => void;
+  setIsSearching: (value: boolean) => void;
+  setShowSearchCompletePopup: (value: boolean) => void;
 }
 
 export const useAppStore = create<AppStore>()(
@@ -66,6 +70,7 @@ export const useAppStore = create<AppStore>()(
       searchResultsCount: 0,
       isSearching: false,
       searchPerformedThisSession: false,
+      showSearchCompletePopup: false,
       user: {
         name: 'Mario Rossi',
         email: 'mario.rossi@example.com',
@@ -110,7 +115,9 @@ export const useAppStore = create<AppStore>()(
       clearNotifications: () => set({ notifications: [] }),
       setHasSearched: (value) => set({ hasSearched: value }),
       setSearchResultsCount: (count) => set({ searchResultsCount: count }),
-      setSearchPerformedThisSession: (value) => set({ searchPerformedThisSession: value, hasSearched: value ? value : get().hasSearched }),
+      setSearchPerformedThisSession: (value) => set({ searchPerformedThisSession: value, hasSearched: value }),
+      setIsSearching: (value) => set({ isSearching: value }),
+      setShowSearchCompletePopup: (value) => set({ showSearchCompletePopup: value }),
     }),
     {
       name: 'connect-lead-intelligence-storage',
