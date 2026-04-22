@@ -102,8 +102,27 @@ export function Layout({ children }: LayoutProps) {
       
       {/* Mobile Navbar (Bottom) */}
       <nav className="md:hidden fixed bottom-0 left-0 right-0 h-20 bg-surface/80 backdrop-blur-3xl border-t border-white/5 z-[100] flex items-center justify-around px-4">
-        {navItems.slice(0, 3).map((item) => {
+        {navItems.slice(0, 4).map((item) => {
+          const isCoach = item.path === '/coach';
           const isActive = location.pathname.startsWith(item.path);
+          const onCoachPage = location.pathname === '/coach';
+          
+          if (isCoach) {
+            return (
+              <button
+                key={item.path}
+                disabled={!onCoachPage}
+                className={cn(
+                  "flex flex-col items-center gap-1 p-2 transition-all",
+                  onCoachPage ? "text-primary scale-110" : "text-on-surface-variant opacity-30 cursor-not-allowed"
+                )}
+              >
+                <item.icon className={cn("w-6 h-6", onCoachPage && "fill-primary/20")} />
+                <span className="text-[10px] font-black uppercase tracking-tighter">{item.label.split('/')[0]}</span>
+              </button>
+            );
+          }
+          
           return (
             <NavLink
               key={item.path}
