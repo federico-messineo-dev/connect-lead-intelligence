@@ -83,7 +83,7 @@ export default function ConfigPage() {
   const isValid = location.trim() && selectedCategories.length > 0;
 
   return (
-    <div className="space-y-12 pb-20">
+    <div className={cn("space-y-12 pb-20 transition-all duration-300", isSearching && "pointer-events-none opacity-30")}>
       {/* Hero Header */}
       <div className="max-w-2xl space-y-3 md:space-y-4 text-center md:text-left">
         <motion.h1 
