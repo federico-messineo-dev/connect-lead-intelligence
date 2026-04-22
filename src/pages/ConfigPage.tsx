@@ -3,7 +3,6 @@ import {
   Rocket, 
   MapPin, 
   Store, 
-  Search, 
   X, 
   PlusCircle, 
   Key,
@@ -14,20 +13,6 @@ import {
 } from 'lucide-react';
 import { useState, useEffect, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { motion, AnimatePresence } from 'motion/react';
-import { 
-  Rocket, 
-  MapPin, 
-  Store, 
-  Search, 
-  X, 
-  PlusCircle, 
-  Key,
-  Database,
-  Loader2,
-  AlertCircle,
-  Check
-} from 'lucide-react';
 import { cn } from '../lib/utils';
 import { useAppStore } from '../store';
 import { ALL_LEADS } from '../constants';
@@ -73,7 +58,6 @@ export default function ConfigPage() {
         const place = autocompleteRef.current?.getPlace();
         if (place?.formatted_address) {
           setLocation(place.formatted_address);
-          setShowCitySuggestions(false);
         }
       });
     };
@@ -322,34 +306,6 @@ export default function ConfigPage() {
         </div>
 
       </div>
-
-      {/* City Suggestions Dropdown - Google Places Autocomplete */}
-      <AnimatePresence>
-        {showCitySuggestions && citySuggestions.length > 0 && (
-          <>
-            <div 
-              className="fixed inset-0 z-[60]" 
-              onClick={() => setShowCitySuggestions(false)} 
-            />
-            <motion.div 
-              initial={{ opacity: 0, y: -10 }}
-              animate={{ opacity: 1, y: 0 }}
-              exit={{ opacity: 0, y: -10 }}
-              className="fixed top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[90%] max-w-sm md:w-[400px] glass-card border-2 border-primary/50 shadow-[0_0_50px_rgba(99,102,241,0.5)] z-[9999] py-2 max-h-48 overflow-y-auto"
-            >
-              {citySuggestions.map((city) => (
-                <button
-                  key={city.place_id}
-                  onClick={() => handleSelectCity(city)}
-                  className="w-full text-left px-4 py-3 text-sm font-bold text-on-surface hover:bg-white/5 transition-colors"
-                >
-                  {city.description}
-                </button>
-              ))}
-            </motion.div>
-          </>
-        )}
-      </AnimatePresence>
 
       {/* Floating Bottom Action */}
       <AnimatePresence>
