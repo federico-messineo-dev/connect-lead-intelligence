@@ -9,7 +9,8 @@ import {
   Key,
   Database,
   Loader2,
-  AlertCircle
+  AlertCircle,
+  Check
 } from 'lucide-react';
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
@@ -143,7 +144,8 @@ export default function ConfigPage() {
                     initial={{ opacity: 0, y: -10 }}
                     animate={{ opacity: 1, y: 0 }}
                     exit={{ opacity: 0, y: -10 }}
-                    className="absolute top-full mt-2 left-0 right-0 md:left-0 glass-card border border-white/10 shadow-2xl z-50 py-2 max-h-48 overflow-y-auto"
+                    className="fixed top-24 md:top-auto left-4 right-4 md:left-0 md:right-0 md:w-full md:max-w-md glass-card border border-white/10 shadow-2xl z-[100] py-2 max-h-48 overflow-y-auto"
+                    style={{ maxHeight: '200px' }}
                   >
                     {citySuggestions.map((city) => (
                       <button
@@ -198,16 +200,29 @@ export default function ConfigPage() {
 
             {/* Selection Grid */}
             <div className="grid grid-cols-2 md:grid-cols-3 gap-3">
-              {categories.map(cat => (
-                <button 
-                  key={cat}
-                  onClick={() => { if (!selectedCategories.includes(cat)) { setSelectedCategories([...selectedCategories, cat]); setShowError(false); }}}
-                  className="flex items-center justify-between p-4 bg-white/5 rounded-full border border-white/5 text-sm font-bold text-on-surface-variant hover:bg-white/10 hover:text-on-surface transition-all group/btn"
-                >
-                  {cat}
-                  <PlusCircle className="w-5 h-5 text-on-surface-variant group-hover/btn:text-primary transition-colors" />
-                </button>
-              ))}
+              {categories.map(cat => {
+                const isSelected = selectedCategories.includes(cat);
+                return (
+                  <button 
+                    key={cat}
+                    onClick={() => { if (!isSelected) { setSelectedCategories([...selectedCategories, cat]); setShowError(false); }}}
+                    disabled={isSelected}
+                    className={cn(
+                      "flex items-center justify-between p-4 rounded-full border text-sm font-bold transition-all group/btn",
+                      isSelected 
+                        ? "bg-secondary/20 border-secondary/40 text-secondary cursor-not-allowed" 
+                        : "bg-white/5 border-white/5 text-on-surface-variant hover:bg-white/10 hover:text-on-surface"
+                    )}
+                  >
+                    {cat}
+                    {isSelected ? (
+                      <Check className="w-5 h-5 text-secondary" />
+                    ) : (
+                      <PlusCircle className="w-5 h-5 text-on-surface-variant group-hover/btn:text-primary transition-colors" />
+                    )}
+                  </button>
+                );
+              })}
               <input 
                 type="text" 
                 placeholder="Altra categoria..."
