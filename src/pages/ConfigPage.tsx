@@ -24,7 +24,7 @@ export default function ConfigPage() {
   const [selectedCategories, setSelectedCategories] = useState<string[]>([]);
   const [isSearching, setIsSearching] = useState(false);
   const [showError, setShowError] = useState(false);
-  const { setSearchPerformedThisSession, setSearchResultsCount, setIsSearching: setGlobalIsSearching, setShowSearchCompletePopup } = useAppStore();
+  const { setSearchPerformedThisSession, setSearchResultsCount, setIsSearching: setGlobalIsSearching, setShowSearchCompletePopup, setSelectedSearchCategories } = useAppStore();
 
   const categories = ['Servizi B2B', 'Retail & Negozi', 'Professionisti', 'Sanità & Benessere', 'Logistica'];
 
@@ -42,6 +42,7 @@ export default function ConfigPage() {
     setTimeout(() => {
       setIsSearching(false);
       setGlobalIsSearching(false);
+      setSelectedSearchCategories(selectedCategories);
       setSearchPerformedThisSession(true);
       setSearchResultsCount(ALL_LEADS.length);
       setShowSearchCompletePopup(true);
@@ -241,7 +242,7 @@ export default function ConfigPage() {
           disabled={isSearching}
           className={cn(
             "w-full md:w-auto text-surface font-black text-lg px-8 md:px-12 py-4 md:py-5 rounded-full shadow-[0_20px_50px_rgba(0,112,235,0.3)] flex items-center justify-center gap-3",
-            isSearching ? "bg-white/10 cursor-not-allowed" : "bg-gradient-to-r from-primary to-primary-dim active:shadow-inner"
+            isSearching ? "bg-gradient-to-r from-primary/60 to-primary-dim/60 cursor-wait" : "bg-gradient-to-r from-primary to-primary-dim active:shadow-inner"
           )}
         >
           {isSearching ? (
