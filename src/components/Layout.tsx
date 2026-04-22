@@ -388,11 +388,8 @@ export function Layout({ children }: LayoutProps) {
       </AnimatePresence>
 
       {/* Main Content Area */}
-      <motion.div 
-        animate={{ marginLeft: isCollapsed ? 100 : 288 }}
-        transition={{ duration: 0.4, ease: [0.23, 1, 0.32, 1] }}
+      <div 
         className="flex-1 flex flex-col min-w-0 md:ml-0"
-        style={{ marginLeft: typeof window !== 'undefined' && window.innerWidth < 768 ? 0 : undefined }}
       >
         {/* Top bar (Desktop) */}
         <header className="hidden md:flex h-20 items-center justify-between px-10 border-b border-white/5 sticky top-0 bg-surface/80 backdrop-blur-3xl z-40">
@@ -654,7 +651,7 @@ export function Layout({ children }: LayoutProps) {
             </motion.div>
           </AnimatePresence>
         </main>
-      </motion.div>
+      </div>
     </div>
   );
 }
