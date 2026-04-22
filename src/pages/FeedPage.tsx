@@ -28,9 +28,14 @@ export default function FeedPage() {
   const [showMoreFilters, setShowMoreFilters] = useState(false);
   const moreRef = useRef<HTMLDivElement>(null);
   const toggleSaveLead = useAppStore(state => state.toggleSaveLead);
+  const { searchPerformedThisSession, setSearchPerformedThisSession, hasSearched, searchResultsCount, showSearchCompletePopup, setShowSearchCompletePopup, selectedSearchCategories, selectedSearchLocation } = useAppStore();
+
+  useEffect(() => {
+    setSearchPerformedThisSession(false);
+  }, []);
+  
   const savedLeads = useAppStore(state => state.savedLeads);
   const setSelectedLead = useAppStore(state => state.setSelectedLead);
-  const { hasSearched, searchResultsCount, searchPerformedThisSession, showSearchCompletePopup, setShowSearchCompletePopup, selectedSearchCategories, selectedSearchLocation } = useAppStore();
 
   const isSaved = (leadId: number) => savedLeads.some(l => l.id === leadId);
 
