@@ -140,34 +140,6 @@ export default function ConfigPage() {
             </div>
           </motion.div>
 
-          {/* City Suggestions Dropdown - Fixed position */}
-          <AnimatePresence>
-            {showCitySuggestions && citySuggestions.length > 0 && (
-              <>
-                <div 
-                  className="fixed inset-0 z-[150]" 
-                  onClick={() => setShowCitySuggestions(false)} 
-                />
-                <motion.div 
-                  initial={{ opacity: 0, y: -10 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  exit={{ opacity: 0, y: -10 }}
-                  className="fixed top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[90%] max-w-sm md:w-[400px] glass-card border-2 border-primary/50 shadow-[0_0_50px_rgba(99,102,241,0.5)] z-[9999] py-2 max-h-48 overflow-y-auto"
-                >
-                  {citySuggestions.map((city) => (
-                    <button
-                      key={city}
-                      onClick={() => { setLocation(city); setShowCitySuggestions(false); }}
-                      className="w-full text-left px-4 py-3 text-sm font-bold text-on-surface hover:bg-white/5 transition-colors"
-                    >
-                      {city}
-                    </button>
-                  ))}
-                </motion.div>
-              </>
-            )}
-          </AnimatePresence>
-
           {/* Category Card */}
           <motion.div 
             initial={{ opacity: 0, y: 20 }}
@@ -235,10 +207,38 @@ export default function ConfigPage() {
                 className="bg-white/5 rounded-full border border-white/5 px-6 py-4 text-sm outline-none focus:ring-1 focus:ring-secondary/20"
               />
             </div>
-          </motion.div>
-        </div>
+           </motion.div>
+         </div>
 
-        {/* Right Col: Meta & Actions */}
+         {/* City Suggestions Dropdown - Fixed position */}
+         <AnimatePresence>
+           {showCitySuggestions && citySuggestions.length > 0 && (
+             <>
+               <div 
+                 className="fixed inset-0 z-[50]" 
+                 onClick={() => setShowCitySuggestions(false)} 
+               />
+               <motion.div 
+                 initial={{ opacity: 0, y: -10 }}
+                 animate={{ opacity: 1, y: 0 }}
+                 exit={{ opacity: 0, y: -10 }}
+                 className="fixed top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[90%] max-w-sm md:w-[400px] glass-card border-2 border-primary/50 shadow-[0_0_50px_rgba(99,102,241,0.5)] z-[9999] py-2 max-h-48 overflow-y-auto"
+               >
+                 {citySuggestions.map((city) => (
+                   <button
+                     key={city}
+                     onClick={() => { setLocation(city); setShowCitySuggestions(false); }}
+                     className="w-full text-left px-4 py-3 text-sm font-bold text-on-surface hover:bg-white/5 transition-colors"
+                   >
+                     {city}
+                   </button>
+                 ))}
+               </motion.div>
+             </>
+           )}
+         </AnimatePresence>
+
+         {/* Right Col: Meta & Actions */}
         <div className="space-y-8">
           {/* Keywords Card */}
           <motion.div 
@@ -289,6 +289,34 @@ export default function ConfigPage() {
         </div>
 
       </div>
+
+      {/* City Suggestions Dropdown - Rendered at root level for proper stacking */}
+      <AnimatePresence>
+        {showCitySuggestions && citySuggestions.length > 0 && (
+          <>
+            <div 
+              className="fixed inset-0 z-[60]" 
+              onClick={() => setShowCitySuggestions(false)} 
+            />
+            <motion.div 
+              initial={{ opacity: 0, y: -10 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0, y: -10 }}
+              className="fixed top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[90%] max-w-sm md:w-[400px] glass-card border-2 border-primary/50 shadow-[0_0_50px_rgba(99,102,241,0.5)] z-[9999] py-2 max-h-48 overflow-y-auto"
+            >
+              {citySuggestions.map((city) => (
+                <button
+                  key={city}
+                  onClick={() => { setLocation(city); setShowCitySuggestions(false); }}
+                  className="w-full text-left px-4 py-3 text-sm font-bold text-on-surface hover:bg-white/5 transition-colors"
+                >
+                  {city}
+                </button>
+              ))}
+            </motion.div>
+          </>
+        )}
+      </AnimatePresence>
 
       {/* Floating Bottom Action */}
       <AnimatePresence>
