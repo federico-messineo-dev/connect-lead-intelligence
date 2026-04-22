@@ -12,12 +12,27 @@ import {
   AlertCircle,
   Check
 } from 'lucide-react';
-import { useState } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { AnimatePresence } from 'motion/react';
+import { motion, AnimatePresence } from 'motion/react';
+import { 
+  Rocket, 
+  MapPin, 
+  Store, 
+  Search, 
+  X, 
+  PlusCircle, 
+  Key,
+  Database,
+  Loader2,
+  AlertCircle,
+  Check
+} from 'lucide-react';
 import { cn } from '../lib/utils';
 import { useAppStore } from '../store';
 import { ALL_LEADS } from '../constants';
+
+const GOOGLE_API_KEY = 'AIzaSyD8KJcWEcdYPazQcMZQf_KXiWLNltj558k';
 
 export default function ConfigPage() {
   const navigate = useNavigate();
@@ -26,21 +41,84 @@ export default function ConfigPage() {
   const [isSearching, setIsSearching] = useState(false);
   const [showError, setShowError] = useState(false);
   const [showCitySuggestions, setShowCitySuggestions] = useState(false);
+  const [citySuggestions, setCitySuggestions] = useState<{ place_id: string; description: string }[]>([]);
+  const inputRef = useRef<HTMLInputElement>(null);
+  const autocompleteRef = useRef<google.maps.places.Autocomplete | null>(null);
   const { setSearchPerformedThisSession, setSearchResultsCount, setIsSearching: setGlobalIsSearching, setShowSearchCompletePopup, setSelectedSearchCategories, setSelectedSearchLocation, setTodayStats, todaySearchesCount, todayLeadsCount } = useAppStore();
 
   const categories = ['Servizi B2B', 'Retail & Negozi', 'Professionisti', 'Sanità & Benessere', 'Logistica'];
-  
-  const italianCities = [
-    'Milano', 'Roma', 'Napoli', 'Torino', 'Palermo', 'Genova', 'Bologna', 'Firenze', 
-    'Bari', 'Catania', 'Venezia', 'Verona', 'Messina', 'Padova', 'Trieste', 'Brescia',
-    'Prato', 'Reggio Calabria', 'Modena', 'Parma', 'Reggio Emilia', 'Perugia', 'Ravenna', 'Lecce',
-    'Cagliari', 'Foggia', 'Rimini', 'Syracuse', 'Grosseto', 'Trento', 'Cesena', 'Imola',
-    'Milano Centro', 'Milano Navigli', 'Roma Centro', 'Napoli Centro', 'Torino Centro'
-  ];
-  
-  const citySuggestions = location.trim().length >= 2 
-    ? italianCities.filter(city => city.toLowerCase().includes(location.toLowerCase())).slice(0, 6)
-    : [];
+
+  useEffect(() => {
+    const loadGooglePlaces = () => {
+      if (!window.google || !window.google.maps || !window.google.maps.places) {
+        const script = document.createElement('script');
+        script.src = `https://maps.googleapis.com/maps/api/js?key=${GOOGLE_API_KEY}&libraries=places&language=it`;
+        script.async = true;
+        script.defer = true;
+        script.onload = () => initAutocomplete();
+        document.head.appendChild(script);
+      } else {
+        initAutocomplete();
+      }
+    };
+
+    const initAutocomplete = () => {
+      if (!inputRef.current || !window.google?.maps?.places) return;
+      
+      autocompleteRef.current = new window.google.maps.places.Autocomplete(inputRef.current, {
+        types: ['(cities)'],
+        fields: ['place_id', 'description'],
+        componentRestrictions: { country: 'it' },
+      });
+
+      autocompleteRef.current.addListener('place_changed', () => {
+        const place = autocompleteRef.current?.getPlace();
+        if (place) {
+          setLocation(place.description || '');
+          setShowCitySuggestions(false);
+        }
+      });
+    };
+
+    loadGooglePlaces();
+
+    return () => {
+      if (autocompleteRef.current) {
+        window.google?.maps?.event?.clearInstanceListeners(autocompleteRef.current);
+      }
+    };
+  }, []);
+
+  const handleLocationChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const value = e.target.value;
+    setLocation(value);
+    setShowError(false);
+    
+    if (value.length >= 2 && window.google?.maps?.places) {
+      const service = new window.google.maps.places.AutocompleteService();
+      service.getPlacePredictions(
+        { input: value, types: ['(cities)'], componentRestrictions: { country: 'it' } },
+        (predictions, status) => {
+          if (status === google.maps.places.PlacesServiceStatus.OK && predictions) {
+            setCitySuggestions(
+              predictions.slice(0, 5).map(p => ({ place_id: p.place_id, description: p.description }))
+            );
+            setShowCitySuggestions(true);
+          }
+        }
+      );
+    } else if (value.length < 2) {
+      setShowCitySuggestions(false);
+    }
+  };
+
+  const handleSelectCity = (city: { place_id: string; description: string }) => {
+    setLocation(city.description);
+    setShowCitySuggestions(false);
+    if (inputRef.current) {
+      inputRef.current.value = city.description;
+    }
+  };
 
   const handleStartSearch = () => {
     setShowError(false);
@@ -127,11 +205,12 @@ export default function ConfigPage() {
             <div className="relative group z-[50]">
               <Search className="absolute left-5 top-1/2 -translate-y-1/2 w-5 h-5 text-on-surface-variant group-focus-within:text-primary transition-colors" />
               <input 
+                ref={inputRef}
                 type="text" 
                 placeholder="Es. Milano, Roma, Napoli..."
                 value={location}
-                onChange={(e) => { setLocation(e.target.value); setShowError(false); setShowCitySuggestions(true); }}
-                onFocus={() => setShowCitySuggestions(true)}
+                onChange={handleLocationChange}
+                onFocus={() => location.length >= 2 && setShowCitySuggestions(true)}
                 className={cn(
                   "w-full bg-surface-container-lowest/30 border rounded-full py-5 pl-14 pr-8 text-on-surface placeholder:text-on-surface-variant/30 focus:ring-2 focus:ring-primary/20 focus:bg-surface-container-lowest/50 transition-all outline-none",
                   showError && !location.trim() ? "border-error focus:ring-error/20" : "border-white/5"
@@ -290,7 +369,7 @@ export default function ConfigPage() {
 
       </div>
 
-      {/* City Suggestions Dropdown - Rendered at root level for proper stacking */}
+      {/* City Suggestions Dropdown - Google Places Autocomplete */}
       <AnimatePresence>
         {showCitySuggestions && citySuggestions.length > 0 && (
           <>
@@ -306,11 +385,11 @@ export default function ConfigPage() {
             >
               {citySuggestions.map((city) => (
                 <button
-                  key={city}
-                  onClick={() => { setLocation(city); setShowCitySuggestions(false); }}
+                  key={city.place_id}
+                  onClick={() => handleSelectCity(city)}
                   className="w-full text-left px-4 py-3 text-sm font-bold text-on-surface hover:bg-white/5 transition-colors"
                 >
-                  {city}
+                  {city.description}
                 </button>
               ))}
             </motion.div>
