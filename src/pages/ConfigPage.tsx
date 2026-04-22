@@ -124,7 +124,7 @@ export default function ConfigPage() {
               </div>
             </div>
 
-            <div className="relative group">
+            <div className="relative group z-[50]">
               <Search className="absolute left-5 top-1/2 -translate-y-1/2 w-5 h-5 text-on-surface-variant group-focus-within:text-primary transition-colors" />
               <input 
                 type="text" 
@@ -144,14 +144,14 @@ export default function ConfigPage() {
               {showCitySuggestions && citySuggestions.length > 0 && (
                 <>
                   <div 
-                    className="fixed inset-0 z-[90]" 
+                    className="fixed inset-0 z-[150]" 
                     onClick={() => setShowCitySuggestions(false)} 
                   />
                   <motion.div 
                     initial={{ opacity: 0, y: -10 }}
                     animate={{ opacity: 1, y: 0 }}
                     exit={{ opacity: 0, y: -10 }}
-                    className="absolute top-full left-0 right-0 mt-2 glass-card border border-white/10 shadow-2xl z-[100] py-2 max-h-48 overflow-y-auto"
+                    className="absolute top-full left-0 right-0 mt-2 glass-card border border-white/10 shadow-2xl z-[200] py-2 max-h-48 overflow-y-auto w-full"
                   >
                     {citySuggestions.map((city) => (
                       <button
