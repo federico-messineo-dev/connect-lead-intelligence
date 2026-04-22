@@ -2,19 +2,46 @@
 <img width="1200" height="475" alt="GHBanner" src="https://github.com/user-attachments/assets/0aa67016-6eaf-458a-adb2-6e31a0763ed6" />
 </div>
 
-# Run and deploy your AI Studio app
+# Connect - Lead Intelligence
 
-This contains everything you need to run your app locally.
+AI-powered lead generation platform for SMMs with integrated AI Coach for automated lead analysis and recommendations.
 
-View your app in AI Studio: https://ai.studio/apps/777d5083-8aae-4324-bd8e-e2c0e5d34e00
+## Features
+
+- Lead management and tracking
+- AI-powered coach for lead analysis
+- Feed configuration
+- User authentication (login/register)
+- Settings management
+
+## Prerequisites
+
+- Node.js 18+
+- npm or yarn
 
 ## Run Locally
 
-**Prerequisites:**  Node.js
+```bash
+npm install
+npm run dev
+```
 
+The app will be available at http://localhost:3000
 
-1. Install dependencies:
-   `npm install`
-2. Set the `GEMINI_API_KEY` in [.env.local](.env.local) to your Gemini API key
-3. Run the app:
-   `npm run dev`
+## Deploy to Vercel
+
+1. Install Vercel CLI:
+   ```bash
+   npm i -g vercel
+   ```
+
+2. Deploy:
+   ```bash
+   vercel
+   ```
+
+3. Or connect your GitHub repository to Vercel for automatic deployments:
+   - Go to https://vercel.com
+   - Import your repository
+   - Add environment variables in Vercel dashboard:
+     - `GEMINI_API_KEY` - Your Gemini API key
