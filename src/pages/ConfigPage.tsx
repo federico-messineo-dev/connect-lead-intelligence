@@ -12,13 +12,11 @@ import {
   AlertCircle,
   Check
 } from 'lucide-react';
-import { useState, useEffect, useRef } from 'react';
+import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { cn } from '../lib/utils';
 import { useAppStore } from '../store';
 import { ALL_LEADS } from '../constants';
-
-const GOOGLE_API_KEY = 'AIzaSyD8KJcWEcdYPazQcMZQf_KXiWLNltj558k';
 
 export default function ConfigPage() {
   const navigate = useNavigate();
@@ -26,65 +24,14 @@ export default function ConfigPage() {
   const [selectedCategories, setSelectedCategories] = useState<string[]>([]);
   const [isSearching, setIsSearching] = useState(false);
   const [showError, setShowError] = useState(false);
-  const inputRef = useRef<HTMLInputElement>(null);
-  const autocompleteRef = useRef<google.maps.places.Autocomplete | null>(null);
   const { setSearchPerformedThisSession, setSearchResultsCount, setIsSearching: setGlobalIsSearching, setShowSearchCompletePopup, setSelectedSearchCategories, setSelectedSearchLocation, setTodayStats, todaySearchesCount, todayLeadsCount } = useAppStore();
 
   const categories = ['Servizi B2B', 'Retail & Negozi', 'Professionisti', 'Sanità & Benessere', 'Logistica'];
-
-  useEffect(() => {
-    const loadGooglePlaces = () => {
-      if (!window.google || !window.google.maps || !window.google.maps.places) {
-        const script = document.createElement('script');
-        script.src = `https://maps.googleapis.com/maps/api/js?key=${GOOGLE_API_KEY}&libraries=places&language=it&callback=initGooglePlaces`;
-        script.async = true;
-        script.defer = true;
-        (window as unknown as { initGooglePlaces: () => void }).initGooglePlaces = initAutocomplete;
-        document.head.appendChild(script);
-      } else {
-        initAutocomplete();
-      }
-    };
-
-    const initAutocomplete = () => {
-      if (!inputRef.current || !window.google?.maps?.places) return;
-      
-      autocompleteRef.current = new window.google.maps.places.Autocomplete(inputRef.current, {
-        types: ['(cities)'],
-        fields: ['place_id', 'formatted_address'],
-        componentRestrictions: { country: 'it' },
-      });
-
-      autocompleteRef.current.addListener('place_changed', () => {
-        const place = autocompleteRef.current?.getPlace();
-        if (place?.formatted_address) {
-          setLocation(place.formatted_address);
-        }
-      });
-    };
-
-    loadGooglePlaces();
-
-    return () => {
-      if (autocompleteRef.current) {
-        window.google?.maps?.event?.clearInstanceListeners(autocompleteRef.current);
-      }
-    };
-  }, []);
 
   const handleLocationChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const value = e.target.value;
     setLocation(value);
     setShowError(false);
-  };
-
-  const handleKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
-    if (e.key === 'Enter') {
-      e.preventDefault();
-      if (location.trim()) {
-        setShowCitySuggestions(false);
-      }
-    }
   };
 
   const handleStartSearch = () => {
@@ -172,12 +119,10 @@ export default function ConfigPage() {
             <div className="relative group z-[50]">
               <Search className="absolute left-5 top-1/2 -translate-y-1/2 w-5 h-5 text-on-surface-variant group-focus-within:text-primary transition-colors" />
               <input 
-                ref={inputRef}
                 type="text" 
                 placeholder="Es. Milano, Roma, Napoli..."
                 value={location}
                 onChange={handleLocationChange}
-                onKeyDown={handleKeyDown}
                 className={cn(
                   "w-full bg-surface-container-lowest/30 border rounded-full py-5 pl-14 pr-8 text-on-surface placeholder:text-on-surface-variant/30 focus:ring-2 focus:ring-primary/20 focus:bg-surface-container-lowest/50 transition-all outline-none",
                   showError && !location.trim() ? "border-error focus:ring-error/20" : "border-white/5"
